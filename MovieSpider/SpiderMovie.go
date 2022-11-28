@@ -80,19 +80,10 @@ func Spiderhtml(url string) {
 		s := re1.FindAllStringSubmatch(result3, -1)
 
 		for _, v := range s {
-			fmt.Println(k)
 			Comment_temp.MajorComment = v[1]
 			M_comments = append(M_comments, Comment_temp)
-			fmt.Println(v[1])
+			// fmt.Println(v[1])
 			k++
-		}
-		//因为b站的主评论每二十条刷新，主评论又是再js中
-		//js的url滚动刷新后才能显示，所以这里就只爬几十个，下面这个i可以控制爬更多，不过得去b站评论区滚动刷新后才能爬出来，不滚动刷新去爬更多会报错
-		//我技术有限，本来是想和爬fzu网站一样并发的，但是这些数据全是都是js渲染的动态数据，以我掌握的知识感觉做起来太麻烦了，
-		//所以就只能手动抓包，直接把主评论和子评论混在一起存数据库，还有就是这个js中的主评论下的子评论只能爬到一两个，其他的爬不到不知道为啥，
-		//我看了js文件里的内容，也确实没有更多的子评论，手动点了翻页刷新之后也只显示这些，，所以每个主评论的子评论都只爬了一点
-		if i == 1 { //i一般是切 1，因为初始化是二十条主评论，滚动刷新一次 可以加一，方便测试所以就先为一，差不多滚动刷新一次是多七十或八十多条评论
-			break
 		}
 
 	}
@@ -114,7 +105,6 @@ func main() {
 	// 创建表 自动迁移 (把结构体和数据表进行对应)
 	db1.AutoMigrate(&M_Comment{})
 	for _, v := range M_comments {
-
 		db1.Create(&v)
 	}
 
