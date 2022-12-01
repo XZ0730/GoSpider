@@ -1,5 +1,23 @@
 package main
 
+/*
+	1.动态数据和静态数据爬取
+	————通过goquery和css选择器爬取数据
+	————Edge chorme 工具运用
+	————通过查找对应数据的api的url获取数据
+	2.gorm映射表
+	————启动mysql，自动迁移表格
+	————gorm的Tag标签定义与运用
+	3.并发编程
+	————并发爬取网页内容，通道与并发编程的理解
+	4.socket,http相关内容了解
+	————网络编程tcp udp 封包，拆包
+	————zinx轻量级框架编写(40%)
+	————通信原理
+
+
+
+*/
 import (
 	"fmt"
 	"log"
@@ -13,13 +31,22 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
+const (
+	dataBase string = "mysql"
+	userName string = "root"
+	passWord string = "111111"
+	IP       string = "127.0.0.1"
+	Port     string = "3306"
+	dbName   string = "bilibliComment"
+)
+
 type Arti struct {
 	Id         int `gorm:"primary_key;auto_increment"`
 	Author     string
 	Title      string
-	Content    string `gorm:"type:longText"` //longtext类型也可以text类型
+	Content    string `gorm:"type:longText"`
 	CreateTime string
-	ReadNum    string `gorm:"type:varchar(20)"`
+	ReadNum    string `gorm:"type:varchar(200)"`
 }
 
 func (Arti) TableName() string {
@@ -61,7 +88,7 @@ func httpget(url string) (result string, err error) {
 
 }
 
-func spider2(url string) (arr *Arti, err error) {
+func spider2(url string) (ari Arti, err error) {
 
 	result, err2 := httpget(url)
 	if err2 != nil {
@@ -78,8 +105,6 @@ func spider2(url string) (arr *Arti, err error) {
 		fmt.Println("[Error] regexpcmopile err")
 		return
 	} //<span id="dynclicks_wbnews_26221_233" name="dynclicks_wbnews_26221_233">414</span>
-
-	var ari = new(Arti) //单例
 
 	//正则匹配标题	发布时间 作者
 	joyUrls1 := re1.FindAllStringSubmatch(result, -1)
@@ -165,7 +190,7 @@ func Spiderhtml(i int, page chan int) {
 
 		str := data[1]
 		ari, err := spider2(str)
-		articles = append(articles, *ari)
+		articles = append(articles, ari)
 		if err != nil {
 			panic(err)
 		}
@@ -188,7 +213,7 @@ func DoWoke() {
 func main() {
 
 	DoWoke()
-	db, err := gorm.Open("mysql", "root:111111@(127.0.0.1:3306)/txxt?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open(dataBase, userName+":"+passWord+"@("+IP+":"+Port+")/"+dbName+"?charset=utf8mb4&parseTime=True&loc=Local")
 	if err != nil {
 		panic(err)
 	}
